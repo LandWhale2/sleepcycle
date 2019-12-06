@@ -10,63 +10,63 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
 
-  var _dateTime;
+
   bool _visiable = true;
-  AnimationController animationController;
-  Animation<double> animation;
+  var _dateTime;
 
   timeset(var time, int sethour, int setminute){
     String tmp;
-    if(time.minute > 30){
-      tmp = "${time.hour-sethour}시 ${time.minute-setminute}분";
+    int tmphour = time.hour;
+    int tmpminute = time.minute;
+
+    if(tmpminute > 30){
+      tmphour -= sethour;
+      tmpminute -= setminute;
     }else{
-      tmp = "${time.hour-sethour}시 ${time.minute+setminute}분";
+      tmphour -= sethour;
+      tmpminute += setminute;
     }
+
+    if(tmphour<0){
+      tmphour = 24 + tmphour;
+    }
+    tmp = '${tmphour} 시 ${tmpminute}분';
     return tmp;
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    animationController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 2),
-    )..addListener(() => setState(() {}));
 
-    animation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(animationController);
-
-    animationController.forward();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: (_visiable == true)?Container(
-        child: FadeTransition(
-          opacity: animation,
+        child: Container(
           child: Stack(
             children: <Widget>[
               Container(
-                height:MediaQuery.of(context).size.height,
-                child: Image(
-                  fit: BoxFit.fill,
-                  image: AssetImage('assets/night.jpg',),
+                decoration: BoxDecoration(
+                  color: Colors.black
                 ),
+                height:MediaQuery.of(context).size.height,
               ),
               Column(
                 children: <Widget>[
                   SizedBox(height: MediaQuery.of(context).size.height/5,),
+                  Text(
+                    'Wake up time',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: MediaQuery.of(context).textScaleFactor*30,
+                        color: Colors.white
+                    ),
+                  ),
+                  SizedBox(height: 100,),
                   Container(
                     child: timepicer(),
                   ),
                   SizedBox(height: 100,),
                   InkWell(
                     onTap: (){
-                      print(_dateTime);
                       setState(() {
                         _visiable = !_visiable;
                       });
@@ -101,9 +101,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           children: <Widget>[
             Container(
               height:MediaQuery.of(context).size.height,
-              child: Image(
-                fit: BoxFit.fill,
-                image: AssetImage('assets/night.jpg',),
+              decoration: BoxDecoration(
+                  color: Colors.black
               ),
             ),
             Center(
@@ -124,11 +123,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   times(4, 30),
                   SizedBox(height: MediaQuery.of(context).size.height/8,),
                   Container(
-                    child: FadeTransition(
-                      opacity: animation,
+                    child: Container(
                       child: InkWell(
                         onTap: (){
-                          print(_dateTime);
                           setState(() {
                             _visiable = !_visiable;
                           });
@@ -146,7 +143,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                           ),
                           child: Center(
                             child: Text(
-                              'Set Time',
+                              'Reset',
                               style: TextStyle(
                                   fontSize: MediaQuery.of(context).textScaleFactor*40,
                                   color: Colors.black,
