@@ -2,69 +2,99 @@ import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 
 
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin{
 
   var _dateTime;
   bool _visiable = true;
+  AnimationController animationController;
+  Animation<double> animation;
+
+  timeset(var time, int sethour, int setminute){
+    String tmp;
+    if(time.minute > 30){
+      tmp = "${time.hour-sethour}시 ${time.minute-setminute}분";
+    }else{
+      tmp = "${time.hour-sethour}시 ${time.minute+setminute}분";
+    }
+    return tmp;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 2),
+    )..addListener(() => setState(() {}));
+
+    animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(animationController);
+
+    animationController.forward();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: (_visiable == true)?Container(
-        child: Stack(
-          children: <Widget>[
-            Container(
-              height:MediaQuery.of(context).size.height,
-              child: Image(
-                fit: BoxFit.fill,
-                image: AssetImage('assets/night.jpg',),
-              ),
-            ),
-            Column(
-              children: <Widget>[
-                SizedBox(height: MediaQuery.of(context).size.height/5,),
-                Container(
-                  child: timepicer(),
+        child: FadeTransition(
+          opacity: animation,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                height:MediaQuery.of(context).size.height,
+                child: Image(
+                  fit: BoxFit.fill,
+                  image: AssetImage('assets/night.jpg',),
                 ),
-                SizedBox(height: 100,),
-                InkWell(
-                  onTap: (){
-                    print(_dateTime);
-                    setState(() {
-                      _visiable = !_visiable;
-                    });
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width/2,
-                    height: MediaQuery.of(context).size.height/15,
-                    decoration: BoxDecoration(
-                      color: Colors.lightBlueAccent,
-                      border: Border.all(width: 0.4),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      gradient: LinearGradient(
-                        colors: [Colors.lightBlueAccent, Colors.lightGreen]
+              ),
+              Column(
+                children: <Widget>[
+                  SizedBox(height: MediaQuery.of(context).size.height/5,),
+                  Container(
+                    child: timepicer(),
+                  ),
+                  SizedBox(height: 100,),
+                  InkWell(
+                    onTap: (){
+                      print(_dateTime);
+                      setState(() {
+                        _visiable = !_visiable;
+                      });
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width/2,
+                      height: MediaQuery.of(context).size.height/15,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(width: 0.4),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Set Time',
-                        style: TextStyle(
-                          fontSize: MediaQuery.of(context).textScaleFactor*40,
-                          color: Colors.white54,
-                          fontWeight: FontWeight.w500
+                      child: Center(
+                        child: Text(
+                          'Set Time',
+                          style: TextStyle(
+                            fontSize: MediaQuery.of(context).textScaleFactor*40,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ):Container(
         child:Stack(
@@ -80,10 +110,22 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 children: <Widget>[
                   SizedBox(height: MediaQuery.of(context).size.height/6,),
+                  Text(
+                    'Sleep Time',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: MediaQuery.of(context).textScaleFactor*30,
+                      color: Colors.white
+                    ),
+                  ),
+                  times(9, 0),
+                  times(7, 30),
+                  times(6, 0),
+                  times(4, 30),
+                  SizedBox(height: MediaQuery.of(context).size.height/8,),
                   Container(
-                    child: AnimatedOpacity(
-                      opacity: _visiable? 2.0 : 1.0,
-                      duration: Duration(milliseconds: 500),
+                    child: FadeTransition(
+                      opacity: animation,
                       child: InkWell(
                         onTap: (){
                           print(_dateTime);
@@ -99,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                             border: Border.all(width: 0.4),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
                             gradient: LinearGradient(
-                                colors: [Colors.lightBlueAccent, Colors.lightGreen]
+                                colors: [Colors.white, Colors.white]
                             ),
                           ),
                           child: Center(
@@ -107,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                               'Set Time',
                               style: TextStyle(
                                   fontSize: MediaQuery.of(context).textScaleFactor*40,
-                                  color: Colors.white54,
+                                  color: Colors.black,
                                   fontWeight: FontWeight.w500
                               ),
                             ),
@@ -144,6 +186,20 @@ class _HomePageState extends State<HomePage> {
           _dateTime = time;
         });
       },
+    );
+  }
+
+  Widget times(int sethour, int setminute){
+    return Padding(
+      padding: const EdgeInsets.only(top: 50),
+      child: Text(
+        timeset(_dateTime,sethour,setminute).toString(),
+        style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: MediaQuery.of(context).textScaleFactor*30,
+            color: Colors.white
+        ),
+      ),
     );
   }
 }
